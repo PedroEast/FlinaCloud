@@ -1,0 +1,145 @@
+import { Component, OnInit, SimpleChanges, Inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { `TableNameBigHump` } from 'src/app/entity/`TableNameBigHump`';
+import { `TableNameBigHump`SqlService } from 'src/app/service/${tableNameLink}-sql.service';
+import { SelectionModel } from '@angular/cdk/collections';
+import { FormControl } from '@angular/forms';
+import { FromTableColumnAndDataToObject } from "src/app/utils/FromTableColumnAndDataToObject";
+import { MatTableDataSource } from '@angular/material/table';
+import { CommonUIService } from 'src/app/service/common-ui.service';
+// Note 需要在app.module.ts注册后才能使用
+
+@Component({
+  selector: `selector`,
+  templateUrl: `templateUrl`,
+  styleUrls: `styleUrls`
+})
+export class `TableNameBigHump`Component implements OnInit {
+  tableName: string;
+  tableData: `TableNameBigHump`[];
+  dataSource;
+  dataColumns: string[];
+  displayedColumns: string[];
+  selection = new SelectionModel(true, []);
+  dataFormControl = new FormControl();
+  multi = false;
+
+  constructor(
+    private commonUI: CommonUIService,
+    private tableSql: `TableNameBigHump`SqlService
+  ) { }
+  // about init
+  ngOnInit(): void {
+    this.findAll();
+  }
+  // about date style
+  switchDate(column){
+    switch(column){
+`caseDate`
+          return true;
+        default:
+          return false;
+    }
+  }
+  isDate(value){
+    return value instanceof Date;
+  }
+
+  findAll() {
+    this.tableSql.getAll`TableNameBigHump`()
+      .subscribe((datas: `TableNameBigHump`[]) => {
+        // console.log(datas)
+        this.tableData = datas;
+        const firstDataIndex = 0;
+        this.dataColumns = Object.keys(this.tableData[firstDataIndex]);
+        this.displayedColumns = ["select", ...this.dataColumns];
+        this.tableData.map(data => {
+          this.dataColumns.map(column => {
+            // console.log( data[column], this.switchDate(column))
+            this.switchDate(column) ? data[column] = new Date(data[column]) : "";
+          })
+        })
+        // console.log(this.tableData)
+        this.dataSource = new MatTableDataSource(this.tableData);
+      })
+  }
+
+  // about sql
+  downloadExtraFile() {
+    const selectedRows: `TableNameBigHump`[] = this.selection.selected;
+    if(selectedRows.length === 0 ) {this.log("还未选择数据"); return}
+    if(!this.multi && selectedRows.length > 1 ) {this.log("禁止多行下载附件"); return}
+    const row = selectedRows[0];
+    this.tableSql.downloadExtraFile(row.id)
+      .subscribe((data: Message) => {
+        if(data.content){
+          // console.log(data.content)
+          this.tableSql.getExtraZipFile(data.content, row.id);
+        }
+      })
+  }
+  uploadExtraFile() {
+    const selectedRows: `TableNameBigHump`[] = this.selection.selected;
+    if(selectedRows.length === 0 ) {this.log("还未选择数据"); return}
+    if(!this.multi && selectedRows.length > 1 ) {this.log("禁止多行上传附件"); return}
+    const row = selectedRows[0]
+    const uploadFileDialogRef =this.commonUI.showUploadWith(['img','audio',"video","docx"]);
+    uploadFileDialogRef.afterClosed()
+      .subscribe( fileList =>{
+        if(fileList && fileList!== 0){
+          this.tableSql.uploadExtraFile(row.id, fileList)
+            .subscribe(_ => console.log("success"))
+        }
+      })
+  }
+  delete() {
+    const selectedRows: `TableNameBigHump`[] = this.selection.selected;
+    if(selectedRows.length === 0 ) {this.log("还未选择数据"); return}
+    // Multi-line irrelevant
+    const deleteDialogRef = this.commonUI.showDeleteConfirmWith("是否删除当前行？")
+    deleteDialogRef.afterClosed()
+      .subscribe( result => {
+        if(result){
+          selectedRows.map(row => {
+            console.log(row)
+            this.tableSql.deleteTbAdmInfo(row)
+            .subscribe(_ => {this.log("删除成功"); this.findAll();})
+          });
+        }
+      })
+  }
+  update() {
+    this.log("更新")
+  }
+  insert(){
+    this.log("新增")
+  }
+  importData(){
+    this.log("导入数据")
+  }
+  exportData(){
+    this.log("导出数据")
+  }
+
+  // about table filter
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+  // about UI checked group
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows;
+  }
+  masterToggle() {
+    this.isAllSelected() ?
+    this.selection.clear() :
+    this.dataSource.data.forEach(row => this.selection.select(row));
+  }
+
+  // about UI tip
+  log(msg, action=null){
+    action ? this.commonUI.showSnackBarWith(msg, action) : this.commonUI.showSnackBarWith(msg);
+  }
+
+}

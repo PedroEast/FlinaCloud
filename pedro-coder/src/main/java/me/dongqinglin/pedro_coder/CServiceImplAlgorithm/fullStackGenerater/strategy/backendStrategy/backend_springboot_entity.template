@@ -1,0 +1,13 @@
+import javax.persistence.*;
+import java.math.*;
+import java.sql.*;
+
+@Entity(name="`table_name`")
+@Table(name="`table_name`")
+public class `TableNameBigHump` {
+
+`variables`
+
+`methods`
+
+}

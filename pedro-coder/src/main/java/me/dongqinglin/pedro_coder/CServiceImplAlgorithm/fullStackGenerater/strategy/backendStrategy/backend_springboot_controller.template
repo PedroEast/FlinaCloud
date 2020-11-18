@@ -1,0 +1,40 @@
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+@RestController
+@RequestMapping("`tableNameHump`")
+public class `TableNameBigHump`Controller {
+
+    @Autowired
+    private `TableNameBigHump`Service `tableNameHump`Service;
+    
+    @PostMapping
+    public void add`TableNameBigHump`(@RequestBody `TableNameBigHump` `tableNameHump`) { `tableNameHump`Service.save(`tableNameHump`); }
+    @PutMapping
+    public void update`TableNameBigHump`(@RequestBody `TableNameBigHump` `tableNameHump`) {`tableNameHump`Service.update(`tableNameHump`);}
+    @DeleteMapping("{id}")
+    public void delete`TableNameBigHump`By(@PathVariable int id){`tableNameHump`Service.deleteById(id);}
+    @GetMapping
+    public List<`TableNameBigHump`> getAll`TableNameBigHump`() { return `tableNameHump`Service.findAll(); }
+    @GetMapping("{id}")
+    public Optional<`TableNameBigHump`> get`TableNameBigHump`By(@PathVariable int id) { return `tableNameHump`Service.findById(id); }
+
+    @PostMapping("uploadExtra/{id}")
+    public Message uploadExtraFiles(@PathVariable int id, @RequestParam("files") MultipartFile[] files){
+        Message result = new Message("success");
+        String tableName = "`tableNameHump`";
+        `tableNameHump`Service.dealWithUploadExtraFiles(files, tableName, id);
+        return result;
+    }
+
+    @GetMapping("downloadExtra/{id}")
+    public Message downloadExtraFiles(@PathVariable int id){
+        Message result;
+        String targetPath = "`tableNameHump`/zip/" + id + ".zip";
+        result = new Message(targetPath);
+        return result;
+    }
+}

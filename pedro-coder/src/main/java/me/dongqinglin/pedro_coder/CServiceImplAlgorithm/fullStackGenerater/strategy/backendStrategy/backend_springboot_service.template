@@ -1,0 +1,14 @@
+import java.util.List;
+import java.util.Optional;
+
+public interface `TableNameBigHump`Service {
+    public void save(`TableNameBigHump` `tableNameHump`);
+    public void deleteById(int id);
+    public List<`TableNameBigHump`> findAll();
+    public void update(`TableNameBigHump` `tableNameHump`);
+    public Optional<`TableNameBigHump`> findById(int id);
+    
+    // filter在前端得以实现，后端就不再需要模糊查询
+    // List<`TableNameBigHump`> getLikeBy(`TableNameBigHump` `tableNameHump`);
+    
+}

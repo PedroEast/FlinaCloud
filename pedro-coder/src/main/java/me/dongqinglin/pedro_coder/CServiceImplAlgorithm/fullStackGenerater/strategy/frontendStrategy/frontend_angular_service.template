@@ -1,0 +1,146 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from "@angular/common/http";
+import { Router } from '@angular/router';
+import { Observable, of } from "rxjs";
+import { catchError, map, tap } from 'rxjs/operators';
+import { `TableNameBigHump` } from "../entity/`TableNameBigHump`";
+import { Message } from "../bean/Message";
+import { backEndAPIAddress ,jwt,  jsonHttpOptions, postFileOptions, staticResource} from "../config/HttpConfig";
+// 依赖的公共常量
+// export const backEndAPIAddress = "http://localhost:8080/api/";
+// export const jwt = window.localStorage.getItem("jwt")
+// export let jsonHttpOptions = jwt ? {headers: new HttpHeaders({ 'Content-Type': 'application/json','Authorization': jwt})}: {headers: new HttpHeaders({ 'Content-Type': 'application/json'})};
+import { CommonUIService } from '../service/common-ui.service';
+/* 依赖的公共轻提示组件服务
+@Injectable({providedIn: 'root'})
+export class CommonUIService {
+  constructor(
+    public snackBar: MatSnackBar,
+  ) { }
+
+  showSnackBarWith(message, action="我知道了"){
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
+  }
+} */
+import { CommonHandleErrorUtil } from '../utils/CommonHandleErrorUtil';
+/* 依赖的公共异常处理器
+export class CommonHandleErrorUtil{
+  constructor(
+    private router: Router,
+    private commonUI: CommonUIService
+  ) { }
+  handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+    console.error(error);
+    const erroeStatusCode: number = error.error.status;
+  // 403被拒， 因为没有权限，跳转至登陆界面
+    if(erroeStatusCode === 403) this.router.navigate(["login"],{})
+    this.log(\`\${operation} failed: \${error.message}\`);
+    return of(result as T);
+  };
+}
+  log(msg, action=null){
+    action ? this.commonUI.showSnackBarWith(msg, action) : this.commonUI.showSnackBarWith(msg);
+  }
+} */
+// 本服务
+@Injectable({
+  providedIn: 'root'
+})
+export class `TableNameBigHump`SqlService extends CommonHandleErrorUtil {
+  tableurl: string = backEndAPIAddress + "/`tableNamHump`";
+  constructor(
+    private http: HttpClient,
+    private myrouter: Router,
+    private mycommonUI: CommonUIService
+    ) { super(myrouter, mycommonUI) }
+
+  add`TableNameBigHump`(`tableNamHump`: `TableNameBigHump`): Observable<`TableNameBigHump`> {
+    return this.http.post<`TableNameBigHump`>(this.tableurl, `tableNamHump`, jsonHttpOptions).pipe(
+      tap((new`TableNameBigHump`: `TableNameBigHump`) => console.log(\`added `tableNamHump` success.\`)),
+      catchError(this.handleError<`TableNameBigHump`>('add`TableNameBigHump`()'))
+    );
+  }
+  update`TableNameBigHump`(`tableNamHump`: `TableNameBigHump`): Observable<any> {
+    return this.http.put(this.tableurl, `tableNamHump`, jsonHttpOptions).pipe(
+      tap(_ => console.log(\`updated `tableNamHump` id=\${`tableNamHump`.id} success.\`)),
+      catchError(this.handleError<any>('update`TableNameBigHump`()'))
+    );
+  }
+  delete`TableNameBigHump`(`tableNamHump`: `TableNameBigHump` | number): Observable<`TableNameBigHump`> {
+    const id = typeof `tableNamHump` === 'number' ? `tableNamHump` : `tableNamHump`.id;
+    const url = \`\${this.tableurl}/\${id}\`;
+    return this.http.delete<`TableNameBigHump`>(url, jsonHttpOptions).pipe(
+      tap(_ => console.log(\`deleted `tableNamHump` id=\${id} success.\`)),
+      catchError(this.handleError<`TableNameBigHump`>('delete`TableNameBigHump`()'))
+    );
+  }
+  getAll`TableNameBigHump`(): Observable<`TableNameBigHump`[]> {
+    return this.http.get<`TableNameBigHump`[]>(this.tableurl, jsonHttpOptions)
+      .pipe(
+        tap(_ => console.log(\`fetched all `TableNameBigHump` success.\`)),
+        catchError(this.handleError<`TableNameBigHump`[]>(\`getAll`TableNameBigHump`()\`, []))
+      );
+  }
+  get`TableNameBigHump`By(id: number): Observable<`TableNameBigHump`> {
+    const url = \`\${this.tableurl}/\${id}\`;
+    return this.http.get<`TableNameBigHump`>(url, jsonHttpOptions)
+      .pipe(
+        tap(_ => console.log(\`fetched `tableNamHump` id=\${id} success.\`)),
+        catchError(this.handleError<`TableNameBigHump`>(\`get`TableNameBigHump`() id=\${id}\`))
+      );
+  }
+
+  uploadExtraFile(id: number, fileList: []) {
+    const url = \`\${this.tableurl}/uploadExtra/\${id}\`;
+    const formData = new FormData();
+    fileList.map((file, index) => {
+      formData.append('files', file);
+    })
+    return this.http.post(url, formData, postFileOptions)
+      .pipe(
+        tap(_ => console.log(\`fetched tbAdmInfo id=\${id} success.\`)),
+        catchError(this.handleError(\`uploadExtraFile() id=\${id}\`))
+      );
+  }
+
+  downloadExtraFile(id: number) {
+    const url = \`\${this.tableurl}/downloadExtra/\${id}\`;
+    return this.http.get<Message>(url, jsonHttpOptions)
+      .pipe(
+        tap(_ => console.log(\`fetched tbAdmInfo id=\${id} success.\`)),
+        catchError(this.handleError<Message>(\`downloadExtraFile() id=\${id}\`))
+      )
+  }
+
+  getExtraZipFile(fileUrl: string, id: number) {
+    fileUrl = staticResource + fileUrl;
+    this.http.get(fileUrl, {headers: jsonHttpOptions.headers, observe: 'response', responseType: 'blob'}).pipe(
+      tap(_ => console.log('fetched fileUrl')),
+      catchError(this.handleError('generateFile()'))
+    ).subscribe((response: HttpResponse<Blob>) => {
+      console.log(response)
+      const fileRename = '${tableName}?id=' + id +'.zip';
+      const fileType = 'application/zip'
+      this.downloadFile(response.body,  fileRename, fileType);
+      this.mycommonUI.showSnackBarWith("正在下载");
+    });
+  }
+
+  downloadFile(data: Blob, fileRename: string, fileType: string) {
+    const file = new Blob([data],{type: fileType});
+    const dataUrl = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.id = 'tempId';
+    document.body.appendChild(a);
+    a.download = fileRename;
+    a.href = dataUrl;
+    a.click();
+    const tempA = document.getElementById('tempId');
+    if (tempA) {
+      tempA.parentNode.removeChild(tempA);
+    }
+  }
+}
