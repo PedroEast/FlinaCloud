@@ -10,7 +10,7 @@ import me.dongqinglin.pedro_coder.DFileApi.bean.FileDefined;
 import java.util.List;
 
 public interface GenerateFileStrategy {
-    String STATIC_ROOT = "/static/";
+    String STATIC_ROOT = "D:/static/";
     MyFileSystem fileSystem = new MyFileSystemImpl();
 
     public List<FileDefined> generateFiles(String underscroeTableName, List<ColumnDefined> underscroeColumns) throws Exception;

@@ -13,7 +13,10 @@ import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+/**
+ * 2020
+ *
+ */
 public class UserTokenFilter extends ZuulFilter {
 
     @Autowired
